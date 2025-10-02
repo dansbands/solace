@@ -13,13 +13,18 @@ export interface Advocate {
 export interface AdvocateApiResponse {
   data: Advocate[];
   total?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
   filters?: {
-    query?: string;
+    search?: string;
     city?: string;
     degree?: string;
     specialty?: string;
     minExperience?: string;
     maxExperience?: string;
+    sort?: string;
+    direction?: string;
   };
 }
 

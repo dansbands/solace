@@ -7,12 +7,16 @@ import { NextRequest } from "next/server";
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get("query");
+    const search = searchParams.get("search") || searchParams.get("query") || "";
     const city = searchParams.get("city");
     const degree = searchParams.get("degree");
     const specialty = searchParams.get("specialty");
     const minExperience = searchParams.get("minExperience");
     const maxExperience = searchParams.get("maxExperience");
+    const sort = searchParams.get("sort") || "";
+    const direction = searchParams.get("direction") || "asc";
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "20");
 
     // TODO: In production, uncomment this line to use database filtering
     // const data = await db.select().from(advocates).where(/* add filtering conditions */);
@@ -21,8 +25,8 @@ export async function GET(request: NextRequest) {
     let data: Advocate[] = advocateData as Advocate[];
 
     // Apply server-side filtering for performance at scale
-    if (query) {
-      const searchLower = query.toLowerCase();
+    if (search) {
+      const searchLower = search.toLowerCase();
       data = data.filter((advocate) => {
         return (
           advocate.firstName.toLowerCase().includes(searchLower) ||
@@ -69,16 +73,52 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Sort data
+    if (sort) {
+      data.sort((a, b) => {
+        let aValue = a[sort as keyof Advocate];
+        let bValue = b[sort as keyof Advocate];
+
+        // Handle undefined values
+        if (aValue === undefined && bValue === undefined) return 0;
+        if (aValue === undefined) return direction === "asc" ? 1 : -1;
+        if (bValue === undefined) return direction === "asc" ? -1 : 1;
+
+        // Handle different data types
+        if (typeof aValue === "string" && typeof bValue === "string") {
+          aValue = aValue.toLowerCase();
+          bValue = bValue.toLowerCase();
+        }
+
+        if (aValue < bValue) return direction === "asc" ? -1 : 1;
+        if (aValue > bValue) return direction === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // Calculate total before pagination
+    const total = data.length;
+
+    // Apply pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedData = data.slice(startIndex, endIndex);
+
     return Response.json({ 
-      data,
-      total: data.length,
+      data: paginatedData,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
       filters: {
-        query,
+        search,
         city,
         degree,
         specialty,
         minExperience,
-        maxExperience
+        maxExperience,
+        sort,
+        direction
       }
     });
   } catch (error) {
