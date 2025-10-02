@@ -191,8 +191,8 @@ export default function Home() {
         </div>
 
         {/* Search Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 mb-6">
+          <div className="flex flex-col sm:flex-row gap-6">
             <div className="flex-1">
               <label
                 htmlFor="search"
@@ -205,13 +205,13 @@ export default function Home() {
                   id="search"
                   type="text"
                   placeholder="Search by name, city, degree, or specialty (e.g., 'trauma', 'ADHD', 'MD')..."
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
                   value={searchTerm}
                   onChange={onChange}
                   disabled={loading}
                   aria-describedby="search-help"
                 />
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute top-0 left-0 h-[46px] flex items-center justify-center w-12 pointer-events-none">
                   <svg
                     className="h-5 w-5 text-gray-400"
                     fill="none"
@@ -229,10 +229,10 @@ export default function Home() {
                 </div>
                 {/* Search suggestions for better UX */}
                 {!searchTerm && (
-                  <div id="search-help" className="mt-2 text-xs text-gray-500">
-                    Popular searches:{" "}
+                  <div id="search-help" className="mt-3 text-sm text-gray-500">
+                    <span className="font-medium">Popular searches:</span>{" "}
                     <button
-                      className="text-blue-600 hover:text-blue-800 underline"
+                      className="text-blue-600 hover:text-blue-800 underline mx-1"
                       onClick={() => {
                         setSearchTerm("trauma");
                         debouncedSearch("trauma");
@@ -240,9 +240,9 @@ export default function Home() {
                     >
                       trauma
                     </button>
-                    ,{" "}
+                    <span className="text-gray-400">•</span>
                     <button
-                      className="text-blue-600 hover:text-blue-800 underline"
+                      className="text-blue-600 hover:text-blue-800 underline mx-1"
                       onClick={() => {
                         setSearchTerm("ADHD");
                         debouncedSearch("ADHD");
@@ -250,9 +250,9 @@ export default function Home() {
                     >
                       ADHD
                     </button>
-                    ,{" "}
+                    <span className="text-gray-400">•</span>
                     <button
-                      className="text-blue-600 hover:text-blue-800 underline"
+                      className="text-blue-600 hover:text-blue-800 underline mx-1"
                       onClick={() => {
                         setSearchTerm("anxiety");
                         debouncedSearch("anxiety");
@@ -264,11 +264,11 @@ export default function Home() {
                 )}
               </div>
             </div>
-            <div className="flex items-end">
+            <div className="flex items-start pt-7">
               <button
                 onClick={onReset}
                 disabled={loading}
-                className="px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
               >
                 Clear Search
               </button>
@@ -303,10 +303,8 @@ export default function Home() {
                 </span>
               ) : (
                 <span>
-                  Showing {filteredAdvocates.length} of {advocates.length}{" "}
-                  advocates
                   {searchTerm && (
-                    <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
                       Search: &ldquo;{searchTerm}&rdquo;
                     </span>
                   )}
