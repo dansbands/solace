@@ -18,11 +18,13 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
-    // TODO: In production, uncomment this line to use database filtering
-    // const data = await db.select().from(advocates).where(/* add filtering conditions */);
-    
-    // For now, use mock data with server-side filtering for better performance
-    let data: Advocate[] = advocateData as Advocate[];
+    // Use database for production-ready performance
+    let query = db.select().from(advocates);
+    let data: Advocate[] = [];
+
+    // Get all data for now - in production, we'd use database-level filtering for better performance
+    const allAdvocates = await query;
+    data = allAdvocates as Advocate[];
 
     // Apply server-side filtering for performance at scale
     if (search) {
