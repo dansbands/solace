@@ -1,4 +1,33 @@
+// settings.json
 {
+  // Enable custom tab labels
+  "workbench.editor.customLabels.enabled": true,
+
+  // Define patterns for common Next.js filenames
+  "workbench.editor.customLabels.patterns": [
+    {
+      // Matches page.tsx, layout.tsx, loading.tsx, error.tsx, not-found.tsx
+      "pattern": "*/**/{page,layout,loading,error,not-found}.{js,jsx,ts,tsx}",
+      // Show as "folderName/page.tsx"
+      "value": "${dirname}/${filename}.${extname}"
+    },
+    {
+      // Matches index files (common in non-Next projects too)
+      "pattern": "*/**/index.{js,jsx,ts,tsx}",
+      "value": "${dirname}/index.${extname}"
+    },
+    {
+      // Matches API route files
+      "pattern": "*/**/route.{js,ts}",
+      "value": "${dirname}/route.${extname}"
+    },
+    {
+      // Matches styles and utils
+      "pattern": "*/**/{styles,utils}.{js,ts,css,scss}",
+      "value": "${dirname}/${filename}.${extname}"
+    }
+  ],
+
   "workbench.colorCustomizations": {
     "editorError.foreground": "#ff0101d7",
     "editorWarning.foreground": "#ffe60033",

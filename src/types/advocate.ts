@@ -12,6 +12,15 @@ export interface Advocate {
 
 export interface AdvocateApiResponse {
   data: Advocate[];
+  total?: number;
+  filters?: {
+    query?: string;
+    city?: string;
+    degree?: string;
+    specialty?: string;
+    minExperience?: string;
+    maxExperience?: string;
+  };
 }
 
 export interface SearchFilters {

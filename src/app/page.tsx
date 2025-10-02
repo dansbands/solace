@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Advocate, AdvocateApiResponse } from "../types/advocate";
+import { useDebounce } from "../hooks/useDebounce";
 
 export default function Home() {
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
@@ -9,60 +10,56 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searching, setSearching] = useState<boolean>(false);
 
-  useEffect(() => {
-    const fetchAdvocates = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await fetch("/api/advocates");
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch advocates: ${response.status}`);
-        }
-        
-        const jsonResponse: AdvocateApiResponse = await response.json();
-        setAdvocates(jsonResponse.data);
-        setFilteredAdvocates(jsonResponse.data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setLoading(false);
+  const fetchAdvocates = useCallback(async (query?: string) => {
+    try {
+      setSearching(true);
+      setError(null);
+      
+      const url = new URL("/api/advocates", window.location.origin);
+      if (query && query.trim()) {
+        url.searchParams.set("query", query.trim());
       }
-    };
-    
-    fetchAdvocates();
+      
+      const response = await fetch(url.toString());
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch advocates: ${response.status}`);
+      }
+      
+      const jsonResponse: AdvocateApiResponse = await response.json();
+      setAdvocates(jsonResponse.data);
+      setFilteredAdvocates(jsonResponse.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
+      setSearching(false);
+    }
   }, []);
+
+  // Initial load
+  useEffect(() => {
+    fetchAdvocates();
+  }, [fetchAdvocates]);
+
+  // Debounced search function for performance
+  const debouncedSearch = useDebounce((query: string) => {
+    fetchAdvocates(query);
+  }, 300);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSearchTerm = e.target.value;
     setSearchTerm(newSearchTerm);
-
-    if (newSearchTerm.trim() === "") {
-      setFilteredAdvocates(advocates);
-      return;
-    }
-
-    const filtered = advocates.filter((advocate) => {
-      const searchLower = newSearchTerm.toLowerCase();
-      return (
-        advocate.firstName.toLowerCase().includes(searchLower) ||
-        advocate.lastName.toLowerCase().includes(searchLower) ||
-        advocate.city.toLowerCase().includes(searchLower) ||
-        advocate.degree.toLowerCase().includes(searchLower) ||
-        advocate.specialties.some((specialty: string) => 
-          specialty.toLowerCase().includes(searchLower)
-        ) ||
-        advocate.yearsOfExperience.toString().includes(searchLower)
-      );
-    });
-
-    setFilteredAdvocates(filtered);
+    
+    // Trigger debounced search
+    debouncedSearch(newSearchTerm);
   };
 
   const onReset = () => {
     setSearchTerm("");
-    setFilteredAdvocates(advocates);
+    fetchAdvocates(); // Fetch all advocates without query
   };
 
   if (loading) {
@@ -101,8 +98,12 @@ export default function Home() {
           value={searchTerm}
           onChange={onChange}
           placeholder="Search advocates..."
+          disabled={loading}
         />
-        <button onClick={onReset}>Reset Search</button>
+        <button onClick={onReset} disabled={loading}>
+          Reset Search
+        </button>
+        {searching && <span style={{ marginLeft: "8px" }}>Searching...</span>}
       </div>
       <br />
       <p>Showing {filteredAdvocates.length} of {advocates.length} advocates</p>
