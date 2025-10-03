@@ -1,3 +1,8 @@
+## 🔰 Reviewers: Start Here
+Please begin with **[SUBMISSION.md](https://github.com/dansbands/solace/blob/main/SUBMISSION.md)** for the review order, testing steps, and overall context.
+
+
+
 ## Solace Candidate Assignment
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
